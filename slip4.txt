@@ -1,0 +1,80 @@
+slip4
+Q1.#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+int main(int argc, char *argv[])
+{
+    if (argc != 2)
+    {
+        printf("Usage: %s <filename>\n", argv[0]);
+        return 1;
+    }
+
+    const char *filename = argv[1];
+
+    if (access(filename, F_OK) == 0)
+    {
+        printf("File %s is present in current directory\n", filename);
+    }
+    else
+    {
+        printf("File %s is not present in current directory\n", filename);
+    }
+
+    return 0;
+}
+Q2.#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/wait.h>
+
+pid_t child_pid;
+
+void sighup_handler(int sig) {
+    printf("Child: Got SIGHUP\n");
+}
+
+void sigint_handler(int sig) {
+    printf("Child: Got SIGINT\n");
+}
+
+void sigquit_handler(int sig) {
+    printf("Child: My Papa has Killed me!!!\n");
+    exit(0);
+}
+
+int main() {
+    child_pid = fork();
+
+    if (child_pid == 0) {
+        signal(SIGHUP, sighup_handler);
+        signal(SIGINT, sigint_handler);
+        signal(SIGQUIT, sigquit_handler);
+        while (1) pause(); // Wait for signals
+    } 
+    else {
+        for (int i = 0; i < 5; i++) {
+            sleep(3);
+            if (i % 2 == 0) kill(child_pid, SIGHUP);
+            else kill(child_pid, SIGINT);
+        }
+        sleep(3);
+        kill(child_pid, SIGQUIT);
+        wait(NULL);
+    }
+
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
