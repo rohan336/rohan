@@ -1,0 +1,71 @@
+slip5
+Q1.#include <stdio.h>
+#include <dirent.h>
+
+int main() {
+    DIR *d = opendir("."); // open current directory
+    if (d == NULL) {
+        perror("opendir");
+        return 1;
+    }
+
+    struct dirent *de;
+    int count = 0;
+
+    while ((de = readdir(d)) != NULL) {
+        printf("%s\n", de->d_name);
+        count++;
+    }
+
+    closedir(d);
+    printf("Total files: %d\n", count);
+
+    return 0;
+}
+Q2.#include <unistd.h>
+#include <stdio.h>
+
+int main()
+{
+    int pipefds[2];
+    int return_status;
+
+    char writeMessage[3][20] = { "Hello world","Hello SPPU","Linux is funny" };
+
+    char readMessage[20];
+
+    return_status = pipe(pipefds);
+
+    if (return_status == -1)
+    {
+        printf("Unable to create pipe\n");
+        return 1;
+    }
+
+    int child = fork();
+
+    if (child == 0)
+    {
+        printf("Child writing to pipe message 1 is: %s\n", writeMessage[0]);
+        printf("Child writing to pipe message 2 is: %s\n", writeMessage[1]);
+        printf("Child writing to pipe message 3 is: %s\n", writeMessage[2]);
+
+        write(pipefds[1], writeMessage[0], sizeof(writeMessage[0]));
+        write(pipefds[1], writeMessage[1], sizeof(writeMessage[1]));
+        write(pipefds[1], writeMessage[2], sizeof(writeMessage[2]));
+    }
+    else
+    {
+        read(pipefds[0], readMessage, sizeof(readMessage));
+        printf("Parent reading the pipe: %s\n", readMessage);
+    }
+
+    return 0;
+}
+
+
+
+
+
+
+
