@@ -1,0 +1,64 @@
+slip21
+Q1.#include<stdio.h>
+#include<unistd.h>
+#include<sys/types.h>
+#include<stdlib.h>
+#include<signal.h>
+void sigstop()
+{
+printf("\n suspended \n");
+}
+void sigcont()
+{
+printf("its back \n");
+}
+void sigint()
+{
+printf("\n intterrupt\n");
+}
+int main(int argc, char* argv[])
+{
+printf("\n starting the program");
+signal (SIGSTOP, sigstop);
+signal (SIGCONT,sigcont);
+signal (SIGINT, sigint);
+while(1)
+{
+sleep(1);
+sigstop();
+sigcont();
+sigint();
+}
+return 0;
+}
+Q2.#include <stdio.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+int main(int argc, char *argv[])
+{
+ int i;
+ struct stat buf;
+ char * ptr;
+ for (i = 1; i < argc; i++)
+ {
+ printf("%s : ", argv[i]);
+ if (stat(argv[i], &buf) < 0)
+ {
+ printf("Error");
+ continue;
+ }
+ if (S_ISREG(buf.st_mode))
+ printf("\n This is a regular file\n");
+ else if (S_ISDIR(buf.st_mode))
+ printf("\n This is a directory file\n");
+ else if (S_ISCHR(buf.st_mode))
+ printf("\n This is a character file\n");
+ else if (S_ISBLK(buf.st_mode))
+ printf("\n This is a block file\n")
+else if (S_ISFIFO(buf.st_mode))
+ printf("\n This is a FIFO file\n");
+ else
+ printf("Unknown mode\n");
+ }
+ return 0;
+}
