@@ -1,0 +1,36 @@
+slip12
+Q1.#include <stdio.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+int main()
+{
+ pid_t pid;
+ int status;
+ pid = fork(); // create a child process
+ if (pid < 0)
+ {
+ printf("Fork failed!\n");
+ }
+ else if (pid == 0)
+ {
+ // Child process
+ printf("Child: I am exiting with status 5\n");
+ _exit(5); // child exit
+}
+ else
+ {
+ // Parent process waits for child
+ wait(&status);
+ if (WIFEXITED(status))
+ {
+ printf("Parent: Child exited normally.\n");
+ printf("Exit status = %d\n", WEXITSTATUS(status));
+ }
+ else
+ {
+ printf("Parent: Child did not exit normally.\n");
+}
+ }
+ return 0;
+}
