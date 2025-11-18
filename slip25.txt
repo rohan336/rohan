@@ -1,0 +1,45 @@
+slip25
+Q1.#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+int main(int argc, char *argv[])
+{
+ char cmd[50];
+ if (argc == 2)
+ {
+ memset(cmd, '\0', sizeof(cmd)); // Clear buffer
+ strcpy(cmd, "ls "); // base command
+ strcat(cmd, "> "); // redirection operator
+ strcat(cmd, argv[1]); // output filename
+ system(cmd); // execute the command
+ }
+ else
+ {
+ printf("Invalid number of inputs\n");
+ }
+ return 0;
+}
+Q2.#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+int main(int argc, char **argv)
+{
+ int newFd;
+ if (argc != 2) {
+ fprintf(stderr, "Usage: %s output_file\n", argv[0]);
+ exit(1);
+ }
+ /* Open the file for writing (create/truncate) */
+ newFd = open(argv[1], O_CREAT | O_TRUNC | O_WRONLY, 0644);
+ if (newFd < 0) {
+ perror(argv[1]);
+ exit(1);
+ }
+ printf("This goes to the standard output\n");
+ printf("Now the standard output will go to \"%s\"\n", argv[1])
+/* Redirect stdout to the file */
+ dup2(newFd, 1);
+ printf("This goes to the standard output too!\n");
+ return 0;
+}
