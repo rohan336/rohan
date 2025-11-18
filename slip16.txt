@@ -1,0 +1,84 @@
+slip16
+Q1.#include <stdio.h>
+#include <stddef.h>
+#include <dirent.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <time.h>
+#include <stdlib.h>
+int main(int argc, char *argv[])
+{
+ char in[100], st[100], *ch, *ch1, c, buff[512];
+ DIR *dp;
+ int i;
+ struct dirent *ep;
+ struct stat sb;
+ char mon[100];
+ dp = opendir("1");
+ if (dp != NULL)
+ {
+ while ((ep = readdir(dp)))
+ {
+ if (stat(ep->d_name, &sb) == -1)
+{
+ perror("stat");
+ exit(EXIT_SUCCESS);
+ }
+ strcpy(mon, ctime(&sb.st_ctime));
+ ch = strtok(mon, " ");
+ ch = strtok(NULL, " ");
+ ch1 = strtok(NULL, " ");
+ if ((strcmp(ch1, argv[1])) == 0)
+ {
+ printf("%s\t%s", ep->d_name, ctime(&sb.st_ctime));
+ }
+ }
+ closedir(dp);
+ }
+ return 0;
+Q2.#include <stdio.h>
+#include <unistd.h>
+#include <signal.h>
+#include <stdlib.h>
+void sighup_handler() {
+ printf("Child: I got SIGHUP signal\n");
+}
+void sigint_handler() {
+ printf("Child: I got SIGINT signal\n");
+}
+void sigquit_handler() {
+ printf("Child: My DADDY has killed me!!!\n");
+ exit(0);
+}
+int main() {
+ int pid;
+ pid = fork();
+ if (pid < 0) {
+ printf("Fork failed!\n")
+return 1;
+ }
+ if (pid == 0) {
+ // Child process
+ signal(SIGHUP, sighup_handler);
+ signal(SIGINT, sigint_handler);
+ signal(SIGQUIT, sigquit_handler);
+ // Wait forever until signals arrive
+ while (1)
+ pause();
+ }
+ else {
+ // Parent process
+ sleep(1); // Give child time to set handlers
+ for (int i = 1; i <= 10; i++) {
+ if (i % 2 == 1)
+ kill(pid, SIGHUP); // send SIGHUP
+ else
+ kill(pid, SIGINT); // send SIGINT
+ sleep(3); // wait 3 seconds
+ }
+ // After 30 seconds send SIGQUIT
+ kill(pid
+}
+ return 0;
+}
