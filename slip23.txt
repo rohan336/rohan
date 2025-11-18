@@ -1,0 +1,53 @@
+slip23
+Q1.#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+int main(int argc, char *argv[])
+{
+ if (argc != 2)
+ {
+ printf("Usage: %s <filename>\n", argv[0]);
+ return 1;
+ }
+ const char *filename = argv[1];
+ if (access(filename, F_OK) == 0)
+ {
+ printf("File %s is present in current directory\n", filename);
+ }
+ else
+ {
+ printf("File %s is not present in current directory\n", filename);
+ }
+ return 0;
+}
+Q2.#include <stdio.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+int main(int argc, char *argv[])
+{
+ int i;
+ struct stat buf;
+ char * ptr;
+ for (i = 1; i < argc; i++)
+ {
+ printf("%s : ", argv[i]);
+ if (stat(argv[i], &buf) < 0)
+ {
+ printf("Error");
+ continue;
+ }
+ if (S_ISREG(buf.st_mode))
+ printf("\n This is a regular file\n");
+ else if (S_ISDIR(buf.st_mode))
+ printf("\n This is a directory file\n");
+ else if (S_ISCHR(buf.st_mode))
+ printf("\n This is a character file\n");
+else if (S_ISBLK(buf.st_mode))
+ printf("\n This is a block file\n");
+ else if (S_ISFIFO(buf.st_mode))
+ printf("\n This is a FIFO file\n");
+ else
+ printf("Unknown mode\n");
+ }
+ return 0;
+}
