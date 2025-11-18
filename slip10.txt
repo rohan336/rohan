@@ -1,0 +1,55 @@
+slip10
+Q1.#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+int main() {
+ int fd[2];
+ pipe(fd); // create pipe
+ if (fork() == 0) {
+ // Child 1 → runs "ls"
+ dup2(fd[1], STDOUT_FILENO); // write into pipe
+ close(fd[0]);
+ close(fd[1]);
+ execlp("ls", "ls", NULL);
+ perror("execlp");
+ exit(1);
+ }
+ if (fork() == 0) {
+ // Child 2 → runs "wc"
+ dup2(fd[0], STDIN_FILENO); // read from pipe
+ close(fd[1]);
+ close(fd[0]);
+ execlp("wc", "wc", NULL);
+ perror("execlp");
+ exit(1);
+}
+ // Parent closes both ends
+ close(fd[0]);
+ close(fd[1]);
+ wait(NULL);
+ wait(NULL);
+ return 0;
+}
+Q2.#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+int main() {
+ int fd[2];
+ pipe(fd); // create pipe
+ if (fork() == 0) {
+ // -------- Child Process (READS) --------
+ close(fd[1]); // close write end
+ char msg[50];
+ read(fd[0], msg, sizeof(msg));
+ printf("Child received: %s\n", msg);
+ close(fd[0]);
+ }
+ else {
+ // -------- Parent Process (WRITES) --------
+ close(fd[0]); // close read end
+ char message[] = "Hello from Parent!";
+ write(fd[1], message, strlen(message) + 1);
+ close(fd[1]);
+ }
+  return 0;
+}
