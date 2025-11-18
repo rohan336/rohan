@@ -1,0 +1,66 @@
+slip14
+Q1.#include <stdio.h>
+#include <dirent.h>
+#include <sys/stat.h>
+int main()
+{
+ DIR *dp;
+ struct dirent *ep;
+ struct stat sb;
+ int n;
+ printf("Enter size in bytes: ");
+ scanf("%d", &n);
+ dp = opendir("."); // open current directory
+ if (dp != NULL)
+ {
+ while ((ep = readdir(dp)) != NULL)
+ {
+ // get file info using stat()
+ if (stat(ep->d_name, &sb) == 0)
+ {
+ // check if it's a file and size > n
+ if (S_ISREG(sb.st_mode) && sb.st_size > n)
+ {
+ printf("%s --> %ld bytes\n", ep->d_name, sb.st_size);
+}
+ }
+ }
+ closedir(dp);
+ }
+ else
+ {
+ printf("Cannot open directory!\n");
+ }
+ return 0;
+}
+Q2.#include <stdio.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+int main(int argc, char *argv[])
+{
+ int i;
+ struct stat buf;
+ char * ptr;
+ for (i = 1; i < argc; i++)
+ {
+ printf("%s : ", argv[i]);
+ if (stat(argv[i], &buf) < 0)
+ {
+ printf("Error");
+ continue;
+ }
+ if (S_ISREG(buf.st_mode))
+ printf("\n This is a regular file\n");
+ else if (S_ISDIR(buf.st_mode))
+ printf("\n This is a directory file\n");
+ else if (S_ISCHR(buf.st_mode))
+ printf("\n This is a character file\n"
+else if (S_ISBLK(buf.st_mode))
+ printf("\n This is a block file\n");
+ else if (S_ISFIFO(buf.st_mode))
+ printf("\n This is a FIFO file\n");
+ else
+ printf("Unknown mode\n");
+ }
+ return 0;
+}
