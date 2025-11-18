@@ -1,0 +1,70 @@
+slip9
+Q1.#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+int main() {
+ int p1[2], p2[2];
+ pipe(p1); // Pipe: Parent → Child
+ pipe(p2); // Pipe: Child → Parent
+ if (fork() == 0) {
+ // -------- Child Process --------
+ close(p1[1]); // Close write end of p1
+ close(p2[0]); // Close read end of p2
+ char msg[50];
+ read(p1[0], msg, sizeof(msg)); // Read from parent
+ printf("Child received: %s\n", msg);
+ char reply[] = "Message received by Child!";
+ write(p2[1], reply, strlen(reply) + 1); // Send reply to parent
+ close(p1[0]);
+ close(p2[1]);
+ }
+ else {
+ // -------- Parent Process --
+close(p1[0]); // Close read end of p1
+ close(p2[1]); // Close write end of p2
+ char message[] = "Hello Child, I am Parent!";
+ write(p1[1], message, strlen(message) + 1); // Write to child
+ char reply[50];
+ read(p2[0], reply, sizeof(reply)); // Read child's reply
+ printf("Parent received: %s\n", reply);
+ close(p1[1]);
+ close(p2[0]);
+}
+ return 0;
+}
+Q2.#include <stdio.h>
+#include <sys/stat.h>
+#include <stdlib.h>
+int main(int argc, char *argv[])
+{
+ struct stat sb;
+ if (argc != 2) {
+ printf("Usage: %s <filename>\n", argv[0]);
+ exit(1);
+ }
+ // get file information
+ if (stat(argv[1], &sb) == -1) {
+ perror("stat");
+ exit(1);
+ }
+ printf("File: %s\n", argv[1]);
+ // Check file type
+ if (S_ISREG(sb.st_mode))
+ printf("Type: Regular File\n");
+ else if (S_ISDIR(sb.st_mode))
+printf("Type: Directory\n");
+ else if (S_ISCHR(sb.st_mode))
+ printf("Type: Character Device\n");
+ else if (S_ISBLK(sb.st_mode))
+ printf("Type: Block Device\n");
+ else if (S_ISFIFO(sb.st_mode))
+ printf("Type: FIFO / Pipe\n");
+else if (S_ISLNK(sb.st_mode))
+ printf("Type: Symbolic Link\n");
+ else if (S_ISSOCK(sb.st_mode))
+ printf("Type: Socket\n");
+ else
+ printf("Unknown File Type\n");
+ return 0;
+}
+
